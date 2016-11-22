@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-
+/*test*/
 /*plotnw*/
 
 import android.app.Activity;
@@ -17,10 +17,24 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.Comparator;
 
 
 @Autonomous(name = "timeAutonRGBBlue", group = "ITERATIVE_AUTON")
 public class timeAutonRGBBlue extends OpMode {
+    //Constants, used for determining timing, movement, magic numbers, etc
+    //magic numbers for motors, makes the bot move straight when this(or multiple?) are used
+    double leftMotorM = 0.5;
+    double rightMotorM = 0.7;
+    //Magic numbers for the servo
+    private double maxPos = 0.78;
+    private double minPos = 0.18;
+    private double startPos = 0.48;
+    //Durations. Use tuples, since that makes the organization easier. Note that the times are in milliseconds
+    Tuple moveToShoot = new Tuple(new Integer(0), new Integer(700));
+    Tuple shootBall1 = new Tuple(new Integer(700), new Integer(1700));
+    Tuple elevateBall = new Tuple(new Integer(1400), new Integer(2400));
+    Tuple shootBall2 = new Tuple(new Integer(2400), new Integer(3400));
 
     long start_time;
     long current_time;
@@ -28,16 +42,14 @@ public class timeAutonRGBBlue extends OpMode {
     long time;
 
     DcMotor rightMotor = null;
-    DcMotor leftMotor = null;
+    DcMotor leftMotor  = null;
     DcMotor elevator = null;
     DcMotor shooter = null;
     Servo poker = null;
-    private double startPos = 0.48;
-    private double currentPos = startPos;
-    private double maxPos = 0.78;
-    private double minPos = 0.18;
-    private int beacons = 0;
 
+    private double currentPos = startPos;
+    private int beacons = 0;
+    private boolean isWorkingBeacons = false;
     ColorSensor colorSensor;
     boolean bLedOn = false;
 
@@ -69,64 +81,74 @@ public class timeAutonRGBBlue extends OpMode {
 
     @Override
     public void loop() {
-        current_time = System.currentTimeMillis();
-        time = current_time - start_time;
-
-        if (colorSensor.blue() >= 2 && colorSensor.red() < 2 && beacons < 2)
-        {
-            wait_time = System.currentTimeMillis() - start_time;
-            beacons++;
-
-            leftMotor.setPower(0.0);
-            rightMotor.setPower(0.0);
-            elevator.setPower(0.0);
-            shooter.setPower(0.0);
-            if (wait_time > 500)
-            {
-                currentPos = minPos;
-            }
-            if(wait_time > 1500)
-            {
-                currentPos = startPos;
-                leftMotor.setPower(0.5);
-                rightMotor.setPower(0.7);
-            }
-        }
-        else if (time < 700 )
+        Comparator timer = new Comparator(start_time);
+        if (timer.c(moveToShoot))
         {
             leftMotor.setPower(.5);
             rightMotor.setPower(.7);
             elevator.setPower(0.0);
             shooter.setPower(0.0);
         }
-        else if (time > 700 && time < 1700)
+        else if (timer.c(shootBall1))
         {
             leftMotor.setPower(0.0);
             rightMotor.setPower(0.0);
             elevator.setPower(0.0);
             shooter.setPower(1.0);
         }
-        else if (time > 1400 && time < 2400)
+        else if (timer.c(elevateBall))
         {
             leftMotor.setPower(0.0);
             rightMotor.setPower(0.0);
             elevator.setPower(1.0);
             shooter.setPower(0.0);
         }
-        else if (time > 2400 && time < 3400)
+        else if (timer.c(shootBall2))
         {
             leftMotor.setPower(0.0);
             rightMotor.setPower(0.0);
             elevator.setPower(0.0);
             shooter.setPower(1.0);
         }
+        else if (time > 3500 && time < 300000) {
+            if (beacons > 2) {
+                leftMotor.setPower(0.0);
+                rightMotor.setPower(0.0);
+            } else {
+                leftMotor.setPower(0.5);
+                rightMotor.setPower(0.7);
+            }
+
+            if (colorSensor.blue() >= 2 && colorSensor.red() < 2 && beacons < 2) {
+                if (!isWorkingBeacons) {
+                    beacons++;
+                    isWorkingBeacons = true;
+                }
+                wait_time = System.currentTimeMillis() - start_time;
+                leftMotor.setPower(0.0);
+                rightMotor.setPower(0.0);
+                elevator.setPower(0.0);
+                shooter.setPower(0.0);
+                if (wait_time > 500)
+                {
+                    currentPos = minPos;
+                }
+                if(wait_time > 1500)
+                {
+                    currentPos = startPos;
+                    leftMotor.setPower(0.5);
+                    rightMotor.setPower(0.7);
+                }
+            }
+        }
         else
         {
-            leftMotor.setPower(0.5);//Magic numbers
-            rightMotor.setPower(0.7);//Do not touch
+            leftMotor.setPower(0.0);//Magic numbers
+            rightMotor.setPower(0.0);//Do not touch
             elevator.setPower(0.0);
             shooter.setPower(0.0);
             currentPos = startPos;
+            isWorkingBeacons = false;
         }
 
 
