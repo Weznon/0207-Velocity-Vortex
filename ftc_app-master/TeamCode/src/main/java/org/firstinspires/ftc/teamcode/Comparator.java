@@ -1,21 +1,27 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.Tuple;
-
 /**
- * Created by weznon on 11/22/16.
- * Simple class, to make the comparisions in the if statements more clear
+ * Created by Plotnw on 10/25/2016.
  */
 
 public class Comparator {
-    private long compareTo;
+        //Fairly simple object, to store the movement values. This will allow the grid functions to remain pure, and only have one impure function
+        private long left;
+        private long right;
 
-    public Comparator(long i) {
-        this.compareTo = i;
-    }
+        public Comparator(long left, long right) {
+            this.left = left;
+            this.right = right;
+        }
 
-    public boolean c (Tuple<Long, Long> i) {
-        return (System.currentTimeMillis() < i.getLeft() && i.getRight() < System.currentTimeMillis());
+        public Comparator(int left, int right) {
+            this.left = (long) left;
+            this.right = (long) right;
+        }
 
+        public long getLeft() { return left; }
+        public long getRight() { return right; }
+        public boolean compare(long i) {
+            return (this.left < i && i < this.right);
         }
 }
