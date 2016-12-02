@@ -1,0 +1,13 @@
+(Top)
+
+Controller => Motor
+
++5v  =>  +5v
+
+A    =>  GND
+
+GND  =>  A
+
+B    =>  B
+
+The two wires in the middle are swapped
